@@ -37,3 +37,10 @@ app.post('/analyze', async (req, res) => {
 });
 
 app.listen(3000, () => console.log("🚀 Server chạy tại http://localhost:3000"));
+// Dòng này giúp server tìm thấy các file trong thư mục public (html, css, js)
+app.use(express.static('public'));
+
+// Dòng này để khi vào trang chủ (/) nó sẽ mở file index.html bên trong public
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
