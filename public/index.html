@@ -2,70 +2,25 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Sentiment Analysis - Phương</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { --primary: #6366f1; --bg: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; }
-        h2 { color: #1e293b; text-align: center; margin-bottom: 1.5rem; }
-        textarea { width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; font-size: 16px; resize: none; transition: 0.3s; box-sizing: border-box; }
-        textarea:focus { border-color: var(--primary); outline: none; }
-        button { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        .result-box { margin-top: 20px; display: none; padding: 15px; border-radius: 12px; }
-        .positive { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .negative { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-        .neutral { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .reply-section { margin-top: 15px; font-style: italic; font-size: 14px; color: #64748b; border-top: 1px solid #eee; padding-top: 10px; }
-    </style>
+    <title>CX Insight Analytics - Phương</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="card">
-        <h2><i class="fa-solid fa-robot"></i> AI Analysis - Phương</h2>
-        <textarea id="inputText" rows="4" placeholder="Nhập ý kiến khách hàng tại đây..."></textarea>
-        <button onclick="analyze()"><i class="fa-solid fa-wand-magic-sparkles"></i> Phân tích & Phản hồi</button>
-        
-        <div id="resultBox" class="result-box">
-            <strong>Cảm xúc:</strong> <span id="sentimentLabel"></span>
-            <div class="reply-section">
-                <strong>Gợi ý phản hồi:</strong> <br>
+    <div class="container">
+        <h2>📊 CX Insight Analytics</h2>
+        <textarea id="userInput" rows="5" placeholder="Nhập phản hồi khách hàng..."></textarea>
+        <button id="submitBtn" onclick="analyzeSentiment()">PHÂN TÍCH CHIẾN LƯỢC 🚀</button>
+
+        <div id="resultArea" class="result-card">
+            <div id="sentimentLabel" class="sentiment-badge"></div>
+            <div id="starRating" class="stars"></div>
+            <div class="reply-box">
+                <strong>Phản hồi gợi ý từ AI:</strong><br>
                 <span id="aiReply"></span>
             </div>
         </div>
     </div>
-
-    <script>
-        async function analyze() {
-            const text = document.getElementById('inputText').value;
-            if (!text) return alert("Vui lòng nhập nội dung!");
-            
-            const btn = document.querySelector('button');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch('/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
-                });
-                const data = await response.json();
-                
-                const box = document.getElementById('resultBox');
-                box.style.display = 'block';
-                box.className = 'result-box ' + data.sentiment.toLowerCase();
-                
-                document.getElementById('sentimentLabel').innerText = data.sentiment;
-                document.getElementById('aiReply').innerText = data.reply;
-            } catch (err) {
-                alert("Lỗi kết nối server!");
-            } finally {
-                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Phân tích & Phản hồi';
-                btn.disabled = false;
-            }
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
