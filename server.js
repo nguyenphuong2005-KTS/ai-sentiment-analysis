@@ -1,12 +1,15 @@
 const express = require('express');
+const path = require('path');
 const fetch = require('node-fetch');
 require('dotenv').config();
-const path = require('path');
 
 const app = express();
 app.use(express.json());
-app.use(express.static('public')); // Cực kỳ quan trọng để sửa lỗi "Cannot GET /"
 
+// Phục vụ các file tĩnh (css, js) trong thư mục public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API phân tích cảm xúc
 app.post('/analyze', async (req, res) => {
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -17,26 +20,23 @@ app.post('/analyze', async (req, res) => {
             },
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
-                messages: [{
-                    role: "system",
-                    content: "Bạn là chuyên gia phân tích cảm xúc khách hàng. Hãy trả về kết quả dưới dạng JSON: { \"sentiment\": \"Tích cực/Tiêu cực/Trung lập\", \"reply\": \"Một câu phản hồi lịch sự cho khách hàng\" }"
-                }, {
-                    role: "user",
-                    content: req.body.text
-                }],
+                messages: [
+                    { role: "system", content: "Bạn là chuyên gia phân tích cảm xúc. Trả về JSON: {\"sentiment\": \"...\", \"reply\": \"...\"}" },
+                    { role: "user", content: req.body.text }
+                ],
                 response_format: { type: "json_object" }
             })
         });
         const data = await response.json();
         res.json(JSON.parse(data.choices[0].message.content));
     } catch (err) {
-        res.status(500).json({ error: "Lỗi AI" });
+        res.status(500).json({ error: "Lỗi kết nối AI" });
     }
 });
 
+// Quan trọng: Trả về file index.html cho mọi đường dẫn khác
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server chạy tại port ${PORT}`));
+module.exports = app; // Dòng này giúp Vercel hiểu và chạy nhanh hơn
