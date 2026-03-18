@@ -3,24 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>CX Insight Analytics - Phương</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* CSS Gộp luôn vào đây cho chắc chắn đẹp */
+        :root { --primary: #3b82f6; --bg: #0f172a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 2rem; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        h2 { text-align: center; margin-bottom: 1.5rem; color: #f8fafc; }
+        textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 1rem; color: white; font-size: 1rem; resize: none; box-sizing: border-box; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 700; margin-top: 1rem; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2563eb; transform: translateY(-2px); }
+        .result-card { margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; display: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .stars { color: #fbbf24; font-size: 1.5rem; margin: 10px 0; }
+        .reply-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 4px solid var(--primary); }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>📊 CX Insight Analytics</h2>
+        <h2><i class="fa-solid fa-chart-line"></i> CX Insight Analytics</h2>
         <textarea id="userInput" rows="5" placeholder="Nhập phản hồi khách hàng..."></textarea>
-        <button id="submitBtn" onclick="analyzeSentiment()">PHÂN TÍCH CHIẾN LƯỢC 🚀</button>
+        <button id="submitBtn" onclick="analyze()">PHÂN TÍCH CHIẾN LƯỢC 🚀</button>
 
         <div id="resultArea" class="result-card">
-            <div id="sentimentLabel" class="sentiment-badge"></div>
+            <div id="sentimentLabel" style="font-weight: 800; font-size: 1.2rem;"></div>
             <div id="starRating" class="stars"></div>
             <div class="reply-box">
-                <strong>Phản hồi gợi ý từ AI:</strong><br>
+                <strong>Gợi ý từ AI:</strong><br>
                 <span id="aiReply"></span>
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        /* JS Gộp luôn vào đây cho chắc chắn chạy */
+        async function analyze() {
+            const text = document.getElementById('userInput').value;
+            const btn = document.getElementById('submitBtn');
+            if (!text) return alert("Vui lòng nhập ý kiến!");
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tính toán...';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const data = await response.json();
+
+                document.getElementById('resultArea').style.display = 'block';
+                document.getElementById('sentimentLabel').innerText = `${data.sentiment} (${data.confidence_percent}%)`;
+                document.getElementById('aiReply').innerText = data.ai_reply;
+                
+                let stars = '';
+                for(let i=1; i<=5; i++) stars += i <= data.rating_score ? '★' : '☆';
+                document.getElementById('starRating').innerText = stars;
+            } catch (err) {
+                alert("Lỗi AI! Kiểm tra lại API Key trên Vercel nhé.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "PHÂN TÍCH CHIẾN LƯỢC 🚀";
+            }
+        }
+    </script>
 </body>
 </html>
